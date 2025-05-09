@@ -45,6 +45,8 @@ Here is the file structure of the project:
 
 `model_comparison_results.csv`: model comparison results for the models 
 
+`graphs/`, `comparison_plots/`, `saliency_maps/`, `difficulty_analysis/`, `training_plots/`: folders for key visualizations and graphs on evaluation metrics
+
 ## Running the project:
 
 In order to run the project, first ensure you have the open source model installed. You can do this by running the following command:
