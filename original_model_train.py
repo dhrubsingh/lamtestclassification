@@ -58,7 +58,7 @@ def main():
     
     torch.save({
         'model_state_dict': model.state_dict(),
-        'test_indices': test_dataset.indices,  # Save test set indices for consistency
+        'test_indices': test_dataset.indices,
     }, 'covid_model.pth')
     print("Model saved as covid_model.pth")
 

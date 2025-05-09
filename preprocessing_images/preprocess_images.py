@@ -39,16 +39,14 @@ def detect_test_strip(image):
     """Detect the rectangular test strip in the image using multiple methods"""
     height, width = image.shape[:2]
     
-    # Method 1: Color-based detection for blue/green background
+    # Color-based detection for blue/green background
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     
     # Define range for blue/green colors (broader range)
-    # Blue range
     lower_blue1 = np.array([90, 50, 50])
     upper_blue1 = np.array([130, 255, 255])
     mask_blue = cv2.inRange(hsv, lower_blue1, upper_blue1)
     
-    # Cyan/Teal range
     lower_blue2 = np.array([75, 50, 50])
     upper_blue2 = np.array([95, 255, 255])
     mask_cyan = cv2.inRange(hsv, lower_blue2, upper_blue2)
@@ -68,7 +66,7 @@ def detect_test_strip(image):
     valid_contours = []
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area < 100:  # Filter out small noise
+        if area < 100:
             continue
             
         # Get bounding rectangle
@@ -79,7 +77,7 @@ def detect_test_strip(image):
         if 0.1 < aspect_ratio < 10 and area > 1000:
             valid_contours.append((contour, area, (x, y, w, h)))
     
-    # If no valid contours found with color, try edge detection
+    # Try edge detection
     if not valid_contours:
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -98,7 +96,7 @@ def detect_test_strip(image):
         
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 100:  # Filter out small noise
+            if area < 100:
                 continue
                 
             # Get bounding rectangle
@@ -109,7 +107,7 @@ def detect_test_strip(image):
             if 0.1 < aspect_ratio < 10 and area > 1000:
                 valid_contours.append((contour, area, (x, y, w, h)))
     
-    # If still no valid contours, try adaptive thresholding
+    # Try adaptive thresholding
     if not valid_contours:
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -123,7 +121,7 @@ def detect_test_strip(image):
         
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 100:  # Filter out small noise
+            if area < 100:
                 continue
                 
             # Get bounding rectangle
@@ -133,7 +131,7 @@ def detect_test_strip(image):
             if 0.1 < aspect_ratio < 10 and area > 1000:
                 valid_contours.append((contour, area, (x, y, w, h)))
     
-    # If still no valid contours, use a fallback method - look for long rectangular shapes
+    # Look for long rectangular shapes
     if not valid_contours:
         # Try to find long rectangular objects
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -149,7 +147,7 @@ def detect_test_strip(image):
         
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < 500:  # Filter out small noise
+            if area < 500:
                 continue
                 
             # Get bounding rectangle
@@ -180,14 +178,13 @@ def detect_test_strip(image):
         
         return cropped, (x, y, w, h)
     
-    # If all methods fail, use a default approach - look for the center portion of the image
-    # This is a fallback for when we can't detect the strip
+    # Use a default approach - look for the center portion of the image
     center_x = width // 2
     center_y = height // 2
     
     # Define a region around the center
-    crop_width = min(width, 300)  # Typical width of a test strip
-    crop_height = min(height, 100)  # Typical height of a test strip
+    crop_width = min(width, 300)
+    crop_height = min(height, 100)
     
     x = max(0, center_x - crop_width // 2)
     y = max(0, center_y - crop_height // 2)
@@ -228,19 +225,18 @@ def detect_text_orientation(image, max_attempts=2):
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     enhanced = clahe.apply(gray)
     
-    # Define orientations to check - we'll check the dimension-based orientation first
+    # Define orientations
     orientations = [dimension_orientation, 0, 90, 180, 270]
-    orientations = list(dict.fromkeys(orientations))  # Remove duplicates while preserving order
+    orientations = list(dict.fromkeys(orientations))
     
     # Keywords to look for
     keywords = ['PATIENT', 'CONTROL', 'TEST', 'RESULT']
     
-    best_orientation = dimension_orientation  # Default to dimension-based orientation
+    best_orientation = dimension_orientation
     max_score = 0
     
     # Try each orientation
     for angle in orientations:
-        # Skip 0 degrees on first attempt since we're using the original image
         if angle == 0:
             rotated = enhanced
         else:
@@ -268,13 +264,10 @@ def detect_text_orientation(image, max_attempts=2):
             max_score = score
             best_orientation = angle
             
-        # If we found a good match, no need to check other orientations
-        if score >= 2:  # Found at least 2 keywords
+        if score >= 2:
             break
     
-    # If we didn't find any keywords and have attempts left, try with different preprocessing
     if max_score == 0 and max_attempts > 1:
-        # Try with different preprocessing - binary thresholding
         _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         return detect_text_orientation(binary, max_attempts - 1)
     
@@ -293,8 +286,8 @@ def enhance_image(image):
     enhanced = clahe.apply(gray)
     
     # Increase contrast
-    alpha = 1.3  # Contrast control
-    beta = 10    # Brightness control
+    alpha = 1.3
+    beta = 10
     enhanced = cv2.convertScaleAbs(enhanced, alpha=alpha, beta=beta)
     
     # Apply Gaussian blur to reduce noise
@@ -329,13 +322,11 @@ def preprocess_image(image_path):
         # Save original dimensions for logging
         original_height, original_width = image.shape[:2]
         
-        # First detect orientation using text detection on the original image
-        # This is more efficient than doing it after color conversion
+        # Detect orientation using text detection on the original image
         try:
             orientation = detect_text_orientation(image)
         except Exception as e:
             logging.warning(f"Text orientation detection failed for {filename}: {str(e)}. Using default orientation.")
-            # Fallback to dimension-based orientation
             orientation = 90 if original_height > original_width else 0
         
         # Rotate if needed - do this BEFORE color enhancement
@@ -391,7 +382,7 @@ def main():
         success = preprocess_image(image_path)
         if success:
             success_count += 1
-        if (i + 1) % 20 == 0:  # Report progress more frequently
+        if (i + 1) % 20 == 0:
             logging.info(f"Progress: {i+1}/{total_count} images processed")
     
     logging.info(f"Preprocessing completed. Successfully processed {success_count}/{total_count} images")
