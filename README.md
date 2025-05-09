@@ -80,4 +80,4 @@ This will place all the newly created synthetic data into the `Dataset` folder. 
 
 ## Conclusion
 
-This project mangified exisiting data imbalance issues in the original PHRU dataset. We had 209 indeterminate, 420 negative, and 76 positive test cases, making it very difficult to train a model with high accuracy, even with all the opitmizations with fine tuning and synthetic data generation. Further work should improve this imbalance but can use this project as a baseline to run models once this imbalance is addressed.
+This project mangified exisiting data imbalance issues in the original PHRU dataset. We had 209 indeterminate, 420 negative, and 76 positive test cases, making it very difficult to train a model with high accuracy, even with all the opitmizations with fine tuning and synthetic data generation. Further work should improve this imbalance but can use this project as a baseline to run models once this imbalance is addressed in the future.
