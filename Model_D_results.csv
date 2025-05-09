@@ -1,0 +1,3 @@
+Model,accuracy,Indeterminant_precision,Indeterminant_recall,Indeterminant_f1,Negative_precision,Negative_recall,Negative_f1,Positive_precision,Positive_recall,Positive_f1
+Model_D_Base,0.2978723404255319,0.2978723404255319,1.0,0.45901639344262296,0.0,0.0,0.0,0.0,0.0,0.0
+Model_D_Fine_Tuned,0.5957446808510638,0.0,0.0,0.0,0.5957446808510638,1.0,0.7466666666666667,0.0,0.0,0.0
